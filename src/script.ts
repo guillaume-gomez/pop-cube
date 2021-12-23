@@ -6,12 +6,21 @@ import gsap from 'gsap';
 // Scene
 const scene = new THREE.Scene();
 
-// Object
+// Objects
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00Afff });
+const material = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.random() });
 const mesh = new THREE.Mesh(geometry, material);
+mesh.position.setY(10);
 
 scene.add(mesh);
+
+const planeGeometry = new THREE.BoxGeometry(10, 10, 1);
+const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.random() });
+const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+planeMesh.rotateX(-Math.PI/2);
+planeMesh.position.setY(-0.5);
+
+scene.add(planeMesh)
 
 
 // Sizes
@@ -43,7 +52,7 @@ const controls = new OrbitControls( camera, renderer.domElement );
 /**
  * Animate
  */
-gsap.to(mesh.rotation, { duration: 1, x: 5, repeat:-1 });
+gsap.to(mesh.position, { delay: 2.5, duration: 1, y: 0.5 });
 
 
 function tick()
