@@ -2,18 +2,18 @@ import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import gsap from 'gsap';
+import * as dat from 'lil-gui';
+
+let lastCubeY = 0;
+const cubeSize = 1;
 
 // Scene
 const scene = new THREE.Scene();
 
-// Objects
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.random() });
-const mesh = new THREE.Mesh(geometry, material);
-mesh.position.setY(10);
+const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 
-scene.add(mesh);
 
+// Object
 const planeGeometry = new THREE.BoxGeometry(10, 10, 1);
 const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.random() });
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -25,7 +25,7 @@ scene.add(planeMesh)
 
 // Sizes
 const sizes = {
-     width: window.innerWidth,
+    width: window.innerWidth,
     height: window.innerHeight
 }
 // Axe Helper
@@ -34,7 +34,7 @@ scene.add(axesHelper);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
-camera.position.z = 3;
+camera.position.set(0, 1, 1);
 scene.add(camera);
 
 // Renderer
@@ -48,12 +48,17 @@ renderer.setSize(sizes.width, sizes.height);
 // Controls
 const controls = new OrbitControls( camera, renderer.domElement );
 
-
 /**
- * Animate
+ * Debug
  */
-gsap.to(mesh.position, { delay: 2.5, duration: 1, y: 0.5 });
-
+const gui = new dat.GUI({title: "Settings"});
+const parameters = {
+    pop: () =>
+    {
+        popCube();
+    }
+}
+gui.add(parameters, 'pop');
 
 function tick()
 {
@@ -64,8 +69,21 @@ function tick()
     window.requestAnimationFrame(tick);
 }
 
+function popCube() {
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.random() });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.setY(lastCubeY + 10);
+    mesh.rotation.y = 2 * Math.PI * Math.random();
+    gsap.to(mesh.position, { delay: 0.5, duration: 1, y: lastCubeY + 0.5, ease: "circ.out" });
+    gsap.to(camera.position, { duration: 1, y: camera.position.y + 1.25, z: camera.position.z + 1.25, ease: "slow(0.7, 0.7, false)" })
+    scene.add(mesh);
+
+    lastCubeY = lastCubeY + cubeSize;
+}
+
 
 window.onload = () => {
+    popCube();
     tick();
 }
 
