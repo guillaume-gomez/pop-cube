@@ -5,10 +5,12 @@ import gsap from 'gsap';
 import * as dat from 'lil-gui';
 
 let lastCubeY = 0;
+let lastLightY = 0;
 const cubeSize = 1;
-
+const eachLight = 6;
 // Scene
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff * Math.random());
 
 const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 
@@ -19,9 +21,7 @@ const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.rando
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
 planeMesh.rotateX(-Math.PI/2);
 planeMesh.position.setY(-0.5);
-
 scene.add(planeMesh)
-
 
 // Sizes
 const sizes = {
@@ -48,6 +48,11 @@ renderer.setSize(sizes.width, sizes.height);
 // Controls
 const controls = new OrbitControls( camera, renderer.domElement );
 
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+scene.add(ambientLight)
+
+buildLight();
+
 /**
  * Debug
  */
@@ -70,15 +75,28 @@ function tick()
 }
 
 function popCube() {
-    const material = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.random() });
+    const material = new THREE.MeshToonMaterial({ color: 0xffffff * Math.random() });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.setY(lastCubeY + 10);
     mesh.rotation.y = 2 * Math.PI * Math.random();
     gsap.to(mesh.position, { delay: 0.5, duration: 1, y: lastCubeY + 0.5, ease: "circ.out" });
     gsap.to(camera.position, { duration: 1, y: camera.position.y + 1.25, z: camera.position.z + 1.25, ease: "slow(0.7, 0.7, false)" })
     scene.add(mesh);
-
     lastCubeY = lastCubeY + cubeSize;
+
+    if(lastCubeY > lastLightY) {
+        buildLight();
+    }
+}
+
+function buildLight() {
+    const pointLight2 = new THREE.PointLight(0xffffff, 0.5)
+    pointLight2.position.x = 4
+    pointLight2.position.y = eachLight + lastLightY;
+    pointLight2.position.z = 0
+    scene.add(pointLight2)
+
+    lastLightY = lastLightY + eachLight;
 }
 
 
