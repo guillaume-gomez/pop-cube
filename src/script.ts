@@ -4,24 +4,35 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import gsap from 'gsap';
 import * as dat from 'lil-gui';
 
+
+const coolColors = [0x53494B, 0xF1F7ED, 0x91C7BA, 0xB33951, 0xE3D081 ];
+const warmColors = [0xd4ca95, 0xf3a57d, 0xce7e82, 0x886489, 0x5e85a3, 0x886489, 0xa83d66, 0xdb5e5d, 0xf78f57, 0xe2bc74, 0xce7e82, 0xdb5e5d, 0xf1784f, 0xf9a14c, 0xf3c769, 0xf3a57d, 0xf78f57, 0xf9a14c, 0xfbbe49, 0xfdd769, 0xd4ca95, 0xe2bc74, 0xf3c769, 0xfdd769, 0xf5e67e ];
+
 let lastCubeY = 0;
-let lastLightY = 0;
 const cubeSize = 1;
 const eachLight = 6;
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xffffff * Math.random());
+scene.background = new THREE.Color(coolColors[Math.floor(coolColors.length * Math.random())]);
 
 const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 
 
 // Object
 const planeGeometry = new THREE.BoxGeometry(10, 10, 1);
-const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff * Math.random() });
+const planeMaterial = new THREE.MeshBasicMaterial({ color: coolColors[Math.floor(coolColors.length * Math.random())] });
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
 planeMesh.rotateX(-Math.PI/2);
 planeMesh.position.setY(-0.5);
 scene.add(planeMesh)
+
+// Lights
+const hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080820);
+scene.add(hemiLight);
+
+const spotlight = new THREE.SpotLight(0xffa95c);
+spotlight.castShadow = true;
+scene.add(spotlight);
 
 // Sizes
 const sizes = {
@@ -51,8 +62,6 @@ const controls = new OrbitControls( camera, renderer.domElement );
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
 scene.add(ambientLight)
 
-buildLight();
-
 /**
  * Debug
  */
@@ -70,33 +79,27 @@ function tick()
     // Render
     renderer.render(scene, camera);
 
+    spotlight.position.set(
+        camera.position.x + 10,
+        camera.position.y + 10,
+        camera.position.z + 10
+    );
+
     // Call tick again on the next frame
     window.requestAnimationFrame(tick);
 }
 
 function popCube() {
-    const material = new THREE.MeshToonMaterial({ color: 0xffffff * Math.random() });
+    const material = new THREE.MeshToonMaterial({ color: warmColors[Math.floor(warmColors.length * Math.random())] });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.setY(lastCubeY + 10);
     mesh.rotation.y = 2 * Math.PI * Math.random();
+
     gsap.to(mesh.position, { delay: 0.5, duration: 1, y: lastCubeY + 0.5, ease: "circ.out" });
-    gsap.to(camera.position, { duration: 1, y: camera.position.y + 1.25, z: camera.position.z + 1.25, ease: "slow(0.7, 0.7, false)" })
+    const direction  = camera.getWorldDirection(mesh.position.clone());
+    gsap.to(camera.position, { duration: 1, x: camera.position.x - direction.x * 1.25, y: camera.position.y - direction.y * 1.25, z: camera.position.z - direction.z * 1.25, ease: "slow(0.7, 0.7, false)" })
     scene.add(mesh);
     lastCubeY = lastCubeY + cubeSize;
-
-    if(lastCubeY > lastLightY) {
-        buildLight();
-    }
-}
-
-function buildLight() {
-    const pointLight2 = new THREE.PointLight(0xffffff, 0.5)
-    pointLight2.position.x = 4
-    pointLight2.position.y = eachLight + lastLightY;
-    pointLight2.position.z = 0
-    scene.add(pointLight2)
-
-    lastLightY = lastLightY + eachLight;
 }
 
 
