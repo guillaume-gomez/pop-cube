@@ -1,21 +1,28 @@
 import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import gsap from 'gsap';
 import * as dat from 'lil-gui';
 
 
-const coolColors = [0x53494B, 0xF1F7ED, 0x91C7BA, 0xB33951, 0xE3D081 ];
+const coolColors = [0x53494B, 0x91C7BA, 0xB33951, 0xE3D081 ];
 const warmColors = [0xd4ca95, 0xf3a57d, 0xce7e82, 0x886489, 0x5e85a3, 0x886489, 0xa83d66, 0xdb5e5d, 0xf78f57, 0xe2bc74, 0xce7e82, 0xdb5e5d, 0xf1784f, 0xf9a14c, 0xf3c769, 0xf3a57d, 0xf78f57, 0xf9a14c, 0xfbbe49, 0xfdd769, 0xd4ca95, 0xe2bc74, 0xf3c769, 0xfdd769, 0xf5e67e ];
 
 let lastCubeY = 0;
 const cubeSize = 1;
 const eachLight = 6;
+
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(coolColors[Math.floor(coolColors.length * Math.random())]);
+const indexBackgroundColor = Math.floor(coolColors.length * Math.random());
+scene.background = new THREE.Color(coolColors[indexBackgroundColor]);
+// remove the choosed color to have a plane in a different color
+coolColors.splice(indexBackgroundColor, 1);
 
 const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+
 
 
 // Object
@@ -24,7 +31,44 @@ const planeMaterial = new THREE.MeshBasicMaterial({ color: coolColors[Math.floor
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
 planeMesh.rotateX(-Math.PI/2);
 planeMesh.position.setY(-0.5);
-scene.add(planeMesh)
+scene.add(planeMesh);
+
+/**
+ * Fonts
+ */
+const fontLoader = new FontLoader()
+
+fontLoader.load(
+    '/fonts/helvetiker_regular.typeface.json',
+    (font) =>
+    {
+        console.log('loaded')
+    }
+)
+fontLoader.load(
+    '/fonts/helvetiker_regular.typeface.json',
+    (font) =>
+    {
+        const textGeometry = new TextGeometry(
+            'Nono :)',
+            {
+                font: font,
+                size: 0.75,
+                height: 0.2,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.03,
+                bevelSize: 0.02,
+                bevelOffset: 0,
+                bevelSegments: 5
+            }
+        )
+        const textMaterial = new THREE.MeshToonMaterial({ color: warmColors[Math.floor(warmColors.length * Math.random())] });
+        const text = new THREE.Mesh(textGeometry, textMaterial);
+        text.position.set(1.75, 0.25, 4);
+        scene.add(text);
+    }
+)
 
 // Lights
 const hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080820);
@@ -39,9 +83,6 @@ const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
-// Axe Helper
-const axesHelper = new THREE.AxesHelper(2);
-scene.add(axesHelper);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
@@ -147,3 +188,5 @@ window.addEventListener('dblclick', () =>
         
     }
 })
+
+//https://www.naughtyblog.org/porn-world-anissa-kate-emily-mayers-shalina-devine/
