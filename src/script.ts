@@ -180,5 +180,3 @@ window.addEventListener('dblclick', () =>
         
     }
 })
-
-//https://www.naughtyblog.org/porn-world-anissa-kate-emily-mayers-shalina-devine/
